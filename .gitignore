@@ -1,0 +1,4 @@
+/API/serviceAccount.json
+/API/node_modules
+.DS_Store
+/API/config.js
