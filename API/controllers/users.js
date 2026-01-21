@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator')
-const { findByEmail, verifyPassword, checkEmailExists, create } = require('../models/User')
+const { findByEmail, verifyPassword, checkEmailExists, create, findById, update, remove } = require('../models/User')
 const { generateToken, hashPassword } = require('../auth')
 
 const login = async (req, res) => {
@@ -102,4 +102,89 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = { login, register };
+const getCurrentUser = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const user = await findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch(error) {
+        console.error('Error fetching current user:', error);
+        res.status(500).json({ error: 'Failed to fetch user profile' });
+    }
+};
+
+const updateUser = async (req, res) => {
+    const validationErrors = validationResult(req);
+
+    if (!validationErrors.isEmpty()) {
+        return res.status(400).json({
+            error: validationErrors.array()
+        });
+    }
+
+    try {
+        const id = req.params.id;
+        const { email, password } = req.body;
+
+        const user = await findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (id !== req.user.userId) {
+            return res.status(403).json({ error: 'You can only update your own profile' });
+        }
+
+        const updateData = {};
+        
+        if (email !== undefined) {
+            const emailExists = await checkEmailExists(email);
+            const existingUser = await findByEmail(email);
+            if (emailExists && existingUser && existingUser.id !== id) {
+                return res.status(409).json({ error: 'Email already in use' });
+            }
+            updateData.email = email;
+        }
+        
+        if (password !== undefined) {
+            updateData.password = await hashPassword(password);
+        }
+
+        const updatedUser = await update(id, updateData);
+
+        res.status(200).json(updatedUser);
+    } catch(error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const user = await findById(id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (id !== req.user.userId) {
+            return res.status(403).json({ error: 'You can only delete your own account' });
+        }
+
+        await remove(id);
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch(error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+};
+
+module.exports = { login, register, getCurrentUser, updateUser, deleteUser };

@@ -40,9 +40,47 @@ const create = async (userData) => {
     return docRef.id;
 }
 
+const findById = async (id) => {
+    const doc = await usersCollection.doc(id).get();
+    
+    if (!doc.exists) {
+        return null;
+    }
+    
+    const userData = doc.data();
+    const { password, ...userWithoutPassword } = userData;
+    
+    return {
+        id: doc.id,
+        ...userWithoutPassword
+    };
+}
+
+const update = async (id, updateData) => {
+    updateData.updatedAt = new Date().toISOString();
+    await usersCollection.doc(id).update(updateData);
+    
+    const updatedDoc = await usersCollection.doc(id).get();
+    const userData = updatedDoc.data();
+    const { password, ...userWithoutPassword } = userData;
+    
+    return {
+        id: updatedDoc.id,
+        ...userWithoutPassword
+    };
+}
+
+const remove = async (id) => {
+    await usersCollection.doc(id).delete();
+    return true;
+}
+
 module.exports = {
     findByEmail,
     verifyPassword,
     checkEmailExists,
-    create
+    create,
+    findById,
+    update,
+    remove
 }
