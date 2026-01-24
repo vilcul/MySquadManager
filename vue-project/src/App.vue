@@ -18,6 +18,7 @@ function handleLogout() {
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/players">Players</RouterLink>
         
         <template v-if="!authStore.isAuthenticated">
           <RouterLink to="/register">Register</RouterLink>

@@ -26,7 +26,7 @@
             required
           />
           <div v-if="password" class="password-strength">
-            Strength: <span :class="passwordStrength">{{ passwordStrengthText }}</span>
+            Strength: <span :class="passwordStrength">{{ passwordStrength }}</span>
           </div>
         </div>
 
@@ -42,6 +42,10 @@
           <span v-if="confirmPassword && !passwordsMatch" class="error">
             Passwords do not match
           </span>
+
+          <span v-if="confirmPassword && passwordsMatch" class="success">
+            Passwords match
+          </span>
         </div>
 
         <div v-if="errorMessage" class="error-message">
@@ -49,7 +53,7 @@
         </div>
 
         <button type="submit" :disabled="!formIsValid || isLoading" class="submit-btn">
-          {{ isLoading ? 'Se înregistrează...' : 'Creează Cont' }}
+          {{ isLoading ? 'Registering...' : 'Register' }}
         </button>
 
         <p class="switch-auth">
@@ -113,7 +117,6 @@ async function handleSubmit() {
     router.push('/'); 
 
   } catch (error) {
-    // Gestionăm erorile
     if (error.message && error.message.includes('array')) {
       errorMessage.value = 'Invalid data. Please check the fields.'
     } else {
@@ -180,6 +183,13 @@ input:focus {
 .error {
   color: #e74c3c;
   font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.success {
+  color: #27ae60;
+  font-size: 0.9rem;
   margin-top: 0.25rem;
   display: block;
 }

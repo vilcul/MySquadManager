@@ -14,8 +14,8 @@ const playerValidation = [
     body('age')
         .notEmpty()
         .withMessage('Age is required')
-        .isInt({ min: 5, max: 20 })
-        .withMessage('Age must be a valid number (5-20 years)'),
+        .isInt({ min: 8, max: 20 })
+        .withMessage('Age must be a valid number (8-20 years)'),
     body('position')
         .notEmpty()
         .withMessage('Position is required')

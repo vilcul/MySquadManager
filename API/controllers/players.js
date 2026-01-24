@@ -44,8 +44,17 @@ const createPlayer = async (req, res) => {
             age: parseInt(age),
             position: position,
             team: team,
-            physical: physical, 
-            stats: stats,
+            physical: {
+                height: parseInt(physical.height),
+                weight: parseInt(physical.weight),
+                preferredFoot: physical.preferredFoot
+            }, 
+            stats: {
+                matchesPlayed: parseInt(stats.matchesPlayed),
+                goalsScored: parseInt(stats.goalsScored),
+                assists: parseInt(stats.assists),
+                skillRatings: stats.skillRatings || {}
+            },
             createdBy: req.user.userId,
             createdAt: new Date().toISOString()
         };
@@ -88,8 +97,17 @@ const updatePlayer = async (req, res) => {
         if (age !== undefined) updateData.age = parseInt(age);
         if (position !== undefined) updateData.position = position;
         if (team !== undefined) updateData.team = team;
-        if (physical !== undefined) updateData.physical = physical;
-        if (stats !== undefined) updateData.stats = stats;
+        if (physical !== undefined) updateData.physical = {
+                height: parseInt(physical.height),
+                weight: parseInt(physical.weight),
+                preferredFoot: physical.preferredFoot
+            };
+        if (stats !== undefined) updateData.stats = {
+                matchesPlayed: parseInt(stats.matchesPlayed),
+                goalsScored: parseInt(stats.goalsScored),
+                assists: parseInt(stats.assists),
+                skillRatings: stats.skillRatings || {}
+            };
 
         const updatedPlayer = await update(id, updateData);
 

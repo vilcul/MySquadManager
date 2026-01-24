@@ -13,9 +13,16 @@
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
-      <button type="submit" :disabled="isLoading" class="submit-btn">
-        {{ isLoading ? 'Logging in...' : 'Login' }}
-      </button>
+      <div class="form-actions">
+        <button type="submit" :disabled="isLoading" class="submit-btn">
+          {{ isLoading ? 'Logging in...' : 'Login' }}
+        </button>
+
+        <p class="switch-auth">
+          You don't have an account? <RouterLink to="/register">Register here</RouterLink>
+        </p>
+      </div>
+
     </form>
   </div>
 </template>
@@ -107,5 +114,15 @@ input:focus {
 .submit-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.switch-auth {
+  margin: 0;
 }
 </style>
