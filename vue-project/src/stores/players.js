@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { API_BASE_URL } from '@/utils/constants'
 import { useAuthStore } from './auth'
@@ -7,6 +7,94 @@ export const usePlayerStore = defineStore('players', () => {
   const players = ref([])
   const isLoading = ref(false)
   const error = ref(null)
+
+  // Search & Filter State
+  const searchQuery = ref('')
+  const filterPosition = ref('')
+  const filterTeam = ref('')
+  const sortBy = ref('name')
+  const sortOrder = ref('asc')
+
+  // Get unique positions from players
+  const availablePositions = computed(() => {
+    const positions = [...new Set(players.value.map(p => p.position).filter(Boolean))]
+    return positions.sort()
+  })
+
+  // Get unique teams from players
+  const availableTeams = computed(() => {
+    const teams = [...new Set(players.value.map(p => p.team).filter(Boolean))]
+    return teams.sort()
+  })
+
+  // Filtered and sorted players
+  const filteredPlayers = computed(() => {
+    let result = [...players.value]
+
+    // Apply search filter
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.toLowerCase().trim()
+      result = result.filter(player => 
+        player.name?.toLowerCase().includes(query) ||
+        player.team?.toLowerCase().includes(query) ||
+        player.position?.toLowerCase().includes(query)
+      )
+    }
+
+    // Apply position filter
+    if (filterPosition.value) {
+      result = result.filter(player => player.position === filterPosition.value)
+    }
+
+    // Apply team filter
+    if (filterTeam.value) {
+      result = result.filter(player => player.team === filterTeam.value)
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let valueA, valueB
+
+      switch (sortBy.value) {
+        case 'name':
+          valueA = a.name?.toLowerCase() || ''
+          valueB = b.name?.toLowerCase() || ''
+          break
+        case 'age':
+          valueA = a.age || 0
+          valueB = b.age || 0
+          break
+        case 'goals':
+          valueA = a.stats?.goalsScored || 0
+          valueB = b.stats?.goalsScored || 0
+          break
+        case 'matches':
+          valueA = a.stats?.matchesPlayed || 0
+          valueB = b.stats?.matchesPlayed || 0
+          break
+        default:
+          valueA = a.name?.toLowerCase() || ''
+          valueB = b.name?.toLowerCase() || ''
+      }
+
+      if (sortOrder.value === 'asc') {
+        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0
+      } else {
+        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0
+      }
+    })
+
+    return result
+  })
+
+  // Reset all filters
+  function resetFilters() {
+    searchQuery.value = ''
+    filterPosition.value = ''
+    filterTeam.value = ''
+    sortBy.value = 'name'
+    sortOrder.value = 'asc'
+  }
 
   // 1. FETCH ALL PLAYERS
   async function fetchPlayers() {
@@ -146,6 +234,17 @@ export const usePlayerStore = defineStore('players', () => {
     players,
     isLoading,
     error,
+    // Search & Filter
+    searchQuery,
+    filterPosition,
+    filterTeam,
+    sortBy,
+    sortOrder,
+    availablePositions,
+    availableTeams,
+    filteredPlayers,
+    resetFilters,
+    // Actions
     fetchPlayers,
     fetchPlayer,
     createPlayer,
