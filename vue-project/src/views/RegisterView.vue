@@ -6,12 +6,22 @@
       <form @submit.prevent="handleSubmit" class="register-form">
         
         <div class="form-group">
+          <label for="name">Full Name:</label>
+          <input
+            id="name"
+            v-model="name" 
+            type="text"
+            placeholder="John Doe"
+            required
+          />
+        </div>
+        <div class="form-group">
           <label for="email">Email:</label>
           <input
             id="email"
             v-model="email"
             type="email"
-            placeholder="coach@exemple.com"
+            placeholder="coach@example.com"
             required
           />
         </div>
@@ -42,7 +52,6 @@
           <span v-if="confirmPassword && !passwordsMatch" class="error">
             Passwords do not match
           </span>
-
           <span v-if="confirmPassword && passwordsMatch" class="success">
             Passwords match
           </span>
@@ -70,17 +79,15 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router' 
 
-// ==================== STATE ====================
 const authStore = useAuthStore()
 const router = useRouter()
 
+const name = ref('') 
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
-
-// ==================== COMPUTED PROPERTIES ====================
 
 const passwordStrength = computed(() => {
   const length = password.value.length
@@ -97,6 +104,7 @@ const passwordsMatch = computed(() => {
 
 const formIsValid = computed(() => {
   return (
+    name.value.length >= 2 &&
     email.value.includes('@') && 
     password.value.length >= 6 && 
     passwordsMatch.value &&
@@ -104,14 +112,12 @@ const formIsValid = computed(() => {
   )
 })
 
-// ==================== METHODS ====================
-
 async function handleSubmit() {
   errorMessage.value = ''
   isLoading.value = true
 
   try {
-    await authStore.register(email.value, password.value)
+    await authStore.register(name.value, email.value, password.value)
 
     console.log('Registration successful!');
     router.push('/'); 
@@ -129,8 +135,9 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
+/* ===== LAYOUT ===== */
 .register-container {
-  max-width: 500px; 
+  max-width: 500px;
   margin: 2rem auto;
   padding: 2rem;
 }
@@ -141,11 +148,12 @@ h1 {
   text-align: center;
 }
 
+/* ===== FORM ===== */
 .register-form {
   background: #f9f9f9;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
@@ -165,6 +173,7 @@ input {
   border: 2px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 input:focus {
@@ -172,14 +181,28 @@ input:focus {
   border-color: #42b983;
 }
 
+/* ===== PASSWORD STRENGTH ===== */
 .password-strength {
   margin-top: 0.5rem;
   font-size: 0.85rem;
 }
-.password-strength .weak { color: #e74c3c; font-weight: bold; }
-.password-strength .medium { color: #f39c12; font-weight: bold; }
-.password-strength .strong { color: #27ae60; font-weight: bold; }
 
+.password-strength .weak {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.password-strength .medium {
+  color: #f39c12;
+  font-weight: bold;
+}
+
+.password-strength .strong {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+/* ===== MESSAGES ===== */
 .error {
   color: #e74c3c;
   font-size: 0.85rem;
@@ -204,6 +227,7 @@ input:focus {
   text-align: center;
 }
 
+/* ===== BUTTON ===== */
 .submit-btn {
   width: 100%;
   padding: 0.75rem;
@@ -225,6 +249,7 @@ input:focus {
   cursor: not-allowed;
 }
 
+/* ===== FOOTER ===== */
 .switch-auth {
   margin-top: 1.5rem;
   text-align: center;

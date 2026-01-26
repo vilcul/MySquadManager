@@ -1,105 +1,90 @@
-<script setup>
-import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-
-const authStore = useAuthStore()
-const router = useRouter()
-
-function handleLogout() {
-  authStore.logout()
-  router.push('/login')
-}
-</script>
-
 <template>
-  <header>
-    <div class="logo-text">MySquadManager</div>
+  <header v-if="authStore.isAuthenticated" class="navbar">
+    <div class="nav-container">
+      
+      <RouterLink to="/" class="logo">
+        MySquadManager
+      </RouterLink>
 
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/players">Players</RouterLink>
-        
-        <template v-if="!authStore.isAuthenticated">
-          <RouterLink to="/register">Register</RouterLink>
-          <RouterLink to="/login">Login</RouterLink>
-        </template>
-        
-        <template v-else>
-          <span class="user-email">{{ authStore.userEmail }}</span>
-          <button @click="handleLogout" class="logout-btn">Logout</button>
-        </template>
+      <nav class="nav-links">
+        <RouterLink to="/" active-class="active">Home</RouterLink>
+        <RouterLink to="/players" active-class="active">Players</RouterLink>
+        <RouterLink to="/profile" active-class="active">Profile</RouterLink>
       </nav>
+
     </div>
   </header>
 
-  <RouterView />
+  <main>
+    <RouterView />
+  </main>
 </template>
 
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+</script>
+
+<style>
+body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; }
+</style>
+
 <style scoped>
-header {
-  line-height: 1.5;
+.navbar {
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  padding: 0 2rem;
+  height: 60px;
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #ccc; 
-  background-color: white;      
-}
-
-.logo-text {
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: #2c3e50;
-}
-
-.wrapper {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-}
-
-nav {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 1rem;
   align-items: center;
 }
 
-nav a {
+.logo {
   text-decoration: none;
-  color: #2c3e50; 
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #7f8c8d;
   font-weight: 500;
   transition: color 0.3s;
 }
 
-nav a:hover {
-  color: #42b983; 
+.nav-links a:hover {
+  color: #42b983;
 }
 
-nav a.router-link-exact-active {
+.nav-links a.active {
   color: #42b983;
   font-weight: bold;
 }
 
-.user-email {
-    margin-right: 10px;
-    font-weight: bold;
-    color: #555;
-}
-
-.logout-btn {
-  background-color: #e74c3c; 
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.logout-btn:hover {
-    background-color: #c0392b;
+@media (max-width: 600px) {
+  .navbar { padding: 0 1rem; }
+  .logo { font-size: 1.2rem; }
+  .nav-links { gap: 15px; font-size: 0.9rem; }
 }
 </style>

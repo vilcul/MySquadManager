@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator')
 const { findByEmail, verifyPassword, checkEmailExists, create, findById, update, remove } = require('../models/User')
+const Player = require('../models/Player'); 
 const { generateToken, hashPassword } = require('../auth')
 
 const login = async (req, res) => {
@@ -30,7 +31,6 @@ const login = async (req, res) => {
             })
         }
 
-        // Generate JWT token
         const token = generateToken({
             id: user.id,
             email: user.email
@@ -41,7 +41,8 @@ const login = async (req, res) => {
             token,
             user: {
                 id: user.id,
-                email: user.email
+                email: user.email,
+                name: user.name
             }
         });
 
@@ -61,9 +62,8 @@ const register = async (req, res) => {
     }
 
     try {
-        const { email, password } = req.body;
+        const { name, email, password } = req.body;
 
-        // Check if user already exists
         const userExists = await checkEmailExists(email);
 
         if (userExists) {
@@ -72,9 +72,10 @@ const register = async (req, res) => {
             });
         }
 
-        // Hash password and create user
         const hashedPassword = await hashPassword(password);
+
         const newUser = {
+            name: name || email.split('@')[0],
             email,
             password: hashedPassword,
             createdAt: new Date().toISOString()
@@ -82,7 +83,6 @@ const register = async (req, res) => {
 
         const userId = await create(newUser);
 
-        // Generate JWT token for automatic login
         const token = generateToken({
             id: userId,
             email: email
@@ -93,7 +93,8 @@ const register = async (req, res) => {
             token,
             user: {
                 id: userId,
-                email: email
+                email: email,
+                name: newUser.name
             }
         });
     } catch(error) {
@@ -104,14 +105,20 @@ const register = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.params.id || req.user.userId;
+        
         const user = await findById(userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.status(200).json(user);
+        if (req.user.userId !== user.id.toString()) {
+             return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const { password, ...userData } = user;
+        res.status(200).json(userData);
     } catch(error) {
         console.error('Error fetching current user:', error);
         res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -129,7 +136,7 @@ const updateUser = async (req, res) => {
 
     try {
         const id = req.params.id;
-        const { email, password } = req.body;
+        const { name, email, password } = req.body;
 
         const user = await findById(id);
         if (!user) {
@@ -141,7 +148,7 @@ const updateUser = async (req, res) => {
         }
 
         const updateData = {};
-        
+
         if (email !== undefined) {
             const emailExists = await checkEmailExists(email);
             const existingUser = await findByEmail(email);
@@ -150,9 +157,13 @@ const updateUser = async (req, res) => {
             }
             updateData.email = email;
         }
-        
+
         if (password !== undefined) {
             updateData.password = await hashPassword(password);
+        }
+
+        if (name !== undefined) {
+            updateData.name = name;
         }
 
         const updatedUser = await update(id, updateData);
@@ -178,9 +189,15 @@ const deleteUser = async (req, res) => {
             return res.status(403).json({ error: 'You can only delete your own account' });
         }
 
+        if (Player && Player.deleteMany) {
+            await Player.deleteMany({ createdBy: id });
+        } else {
+            console.warn("Could not delete associated players: Player model missing deleteMany");
+        }
+
         await remove(id);
 
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(200).json({ message: 'User and associated players deleted successfully' });
     } catch(error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Failed to delete user' });

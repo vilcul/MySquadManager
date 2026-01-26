@@ -64,18 +64,19 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Register a new user
+   * @param {string} name - User full name
    * @param {string} email - User email
    * @param {string} password - User password
    * @returns {Promise<Object>} Response data or error
    */
-  async function register(email, password) {
+  async function register(name, email, password) {
     try {
       const response = await fetch(`${API_BASE_URL}/users/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ name, email, password })
       })
 
       const data = await response.json()

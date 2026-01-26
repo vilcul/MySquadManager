@@ -15,7 +15,6 @@
           placeholder="Search by name, team, or position..."
           class="search-input"
         />
-        <span class="search-icon">🔍</span>
       </div>
 
       <div class="filters-row">
@@ -197,14 +196,10 @@ function getPositionClass(position) {
 }
 
 h1 { 
-  color: #1a202c; 
+  color: #2c3e50; 
   font-size: 2.25rem; 
   margin: 0; 
   font-weight: 700;
-  background: linear-gradient(135deg, #2c3e50 0%, #42b983 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .search-filter-section { 
@@ -226,7 +221,7 @@ h1 {
 
 .search-input { 
   width: 100%; 
-  padding: 14px 18px 14px 50px; 
+  padding: 14px 18px; 
   border: 2px solid #e2e8f0; 
   border-radius: 12px; 
   font-size: 1rem; 
@@ -234,6 +229,7 @@ h1 {
   background: #ffffff;
   color: #2d3748;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
 }
 
 .search-input:focus { 
@@ -248,20 +244,6 @@ h1 {
 .search-input::placeholder { 
   color: #a0aec0; 
   font-weight: 400;
-}
-
-.search-icon { 
-  position: absolute; 
-  left: 16px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  font-size: 1.2rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.search-box:focus-within .search-icon {
-  opacity: 1;
 }
 
 .filters-row { 
@@ -379,7 +361,7 @@ h1 {
 
 /* Buttons */
 .add-btn { 
-  background: linear-gradient(135deg, #42b983 0%, #3aa876 100%);
+  background: #2c3e50;
   color: white; 
   padding: 12px 24px; 
   text-decoration: none; 
@@ -393,7 +375,7 @@ h1 {
 }
 
 .add-btn:hover { 
-  background: linear-gradient(135deg, #3aa876 0%, #2d9a68 100%);
+  background: #17212c;
   transform: translateY(-2px); 
   box-shadow: 0 6px 20px rgba(66, 185, 131, 0.35);
 }

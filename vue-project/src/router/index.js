@@ -1,16 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-const HomeView = { template: '<h1>Ești logat cu succes.</h1>' }
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'home',
-      component: HomeView,
-      meta: { requiresAuth: true }
+      component: () => import('../views/HomeView.vue'),
     },
     {
       path: '/login',
@@ -45,6 +42,12 @@ const router = createRouter({
       name: 'player-edit',
       component: () => import('../views/PlayerEditView.vue'),
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/UserProfileView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
